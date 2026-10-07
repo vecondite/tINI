@@ -34,14 +34,14 @@ SOFTWARE.
 namespace tINI{
     using IniData = std::unordered_map<std::string, std::unordered_map<std::string, std::string>>;
 
-    std::string trim(std::string str, std::string ttrim){
+    inline std::string trim(std::string str, std::string ttrim){
         size_t start = str.find_first_not_of(ttrim);
         if(start == std::string::npos) return str;
         size_t end = str.find_last_not_of(ttrim);
         return str.substr(start, end-start+1);
     }
 
-    std::vector<std::string> split(std::string str, std::string del){
+    inline std::vector<std::string> split(std::string str, std::string del){
         std::vector<std::string> out;
         size_t start = 0;
         size_t end = 0;
@@ -53,7 +53,7 @@ namespace tINI{
         return out;
     }
 
-    IniData read(std::string file){
+    inline IniData read(std::string file){
         IniData iniData;
         std::string spaces = " \t\n\r";
         std::ifstream iniFile;
@@ -80,6 +80,24 @@ namespace tINI{
         }else{
             std::cerr << "failed to open ini file!";
             return IniData{};
+        }
+    }
+
+    inline bool generate(std::string file, const IniData& genData){
+        std::ofstream outFile(file);
+        if(outFile.is_open()){
+            for(const std::pair<const std::string, std::unordered_map<std::string, std::string>>& sect : genData){
+                outFile << "[" << sect.first << "]\n";
+                for(const std::pair<const std::string, std::string>& entry : sect.second){
+                    outFile << entry.first << " = " << entry.second << "\n";
+                }
+                outFile << "\n";
+            }
+            outFile.close();
+            return true;
+        }else{
+            std::cerr << "Failed to open file " << file << " for writing\n";
+            return false;
         }
     }
 }
